@@ -23,22 +23,26 @@ jobs:
             openjdk-17-jdk \
             autoconf libtool pkg-config \
             zlib1g-dev libncurses5-dev \
-            libncursesw5-dev libtinfo5 \
             cmake libffi-dev libssl-dev \
-            python3-pip
+            python3-pip curl
         
-    - name: Install Android SDK
+    - name: Install Android SDK and NDK
       run: |
         wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
-        unzip commandlinetools-linux-8512546_latest.zip -d cmdline-tools
-        mkdir -p android-sdk
-        mv cmdline-tools android-sdk/cmdline-tools
-        echo "ANDROID_SDK_ROOT=$PWD/android-sdk" >> $GITHUB_ENV
-        echo "$PWD/android-sdk/cmdline-tools/bin" >> $GITHUB_PATH
+        unzip commandlinetools-linux-8512546_latest.zip
+        mkdir -p android-sdk/cmdline-tools
+        mv cmdline-tools android-sdk/cmdline-tools/latest
         
-    - name: Accept Android licenses
+        # Set environment variables
+        echo "ANDROID_HOME=$PWD/android-sdk" >> $GITHUB_ENV
+        echo "ANDROID_SDK_ROOT=$PWD/android-sdk" >> $GITHUB_ENV
+        echo "$PWD/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
+        echo "$PWD/android-sdk/platform-tools" >> $GITHUB_PATH
+        
+    - name: Install Android packages
       run: |
-        yes | android-sdk/cmdline-tools/bin/sdkmanager --licenses
+        yes | android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
+        android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-31" "build-tools;30.0.3"
         
     - name: Install Buildozer
       run: |
