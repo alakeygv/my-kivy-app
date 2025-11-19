@@ -10,11 +10,22 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Install Buildozer and let it handle everything
+    - name: Install dependencies and Buildozer
       run: |
         sudo apt-get update
-        sudo apt-get install -y python3-pip openjdk-17-jdk git
+        sudo apt-get install -y \
+            python3-pip \
+            openjdk-17-jdk \
+            git \
+            cython3 \
+            python3-cython
+        
+    - name: Install Buildozer
+      run: |
         pip install buildozer
+        
+    - name: Build APK with Buildozer
+      run: |
         buildozer -v android debug
       
     - name: Upload APK
@@ -22,3 +33,4 @@ jobs:
       with:
         name: app-apk
         path: bin/*.apk
+        retention-days: 30
