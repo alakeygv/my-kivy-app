@@ -13,22 +13,20 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y python3-pip openjdk-17-jdk git expect
-        pip install buildozer
+        sudo apt-get install -y python3-pip openjdk-17-jdk git cython3
+        pip install buildozer cython
         
-    - name: Build APK with auto-confirmation
+    - name: Build APK with Buildozer
       run: |
-        # Используем expect для автоматического ответа на вопросы
-        expect -c "
-          set timeout 1200
-          spawn buildozer -v android debug
-          expect {
-            \"Are you sure\" { send \"y\r\"; exp_continue }
-            \"continue?\" { send \"y\r\"; exp_continue }
-            \"(y/n)\" { send \"y\r\"; exp_continue }
-            eof
-          }
-        "
+        # Очистка и сборка с автоматическим подтверждением
+        buildozer android clean
+        yes | buildozer -v android debug
+        
+    - name: Check for APK files
+      run: |
+        echo "=== Checking for APK files ==="
+        find . -name "*.apk" -type f 2>/dev/null | head -10 || echo "No APK files found"
+        ls -la bin/ 2>/dev/null || echo "bin directory not found"
       
     - name: Upload APK
       uses: actions/upload-artifact@v4
@@ -36,3 +34,4 @@ jobs:
         name: app-apk
         path: bin/*.apk
         retention-days: 30
+        if-no-files-found: warn
