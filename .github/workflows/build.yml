@@ -13,13 +13,22 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y python3-pip openjdk-17-jdk git
+        sudo apt-get install -y python3-pip openjdk-17-jdk git expect
         pip install buildozer
         
-    - name: Build APK with Buildozer (auto-confirm)
+    - name: Build APK with auto-confirmation
       run: |
-        # Автоматически подтверждаем все запросы Buildozer
-        yes | buildozer -v android debug
+        # Используем expect для автоматического ответа на вопросы
+        expect -c "
+          set timeout 1200
+          spawn buildozer -v android debug
+          expect {
+            \"Are you sure\" { send \"y\r\"; exp_continue }
+            \"continue?\" { send \"y\r\"; exp_continue }
+            \"(y/n)\" { send \"y\r\"; exp_continue }
+            eof
+          }
+        "
       
     - name: Upload APK
       uses: actions/upload-artifact@v4
