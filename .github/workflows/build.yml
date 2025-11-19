@@ -24,12 +24,13 @@ jobs:
             autoconf libtool pkg-config \
             zlib1g-dev libncurses5-dev \
             cmake libffi-dev libssl-dev \
-            python3-pip curl
+            python3-pip curl wget
         
-    - name: Install Android SDK and NDK
+    - name: Install Android SDK and Build-tools
       run: |
-        wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
-        unzip commandlinetools-linux-8512546_latest.zip
+        # Download Android Command Line Tools
+        wget -q https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
+        unzip -q commandlinetools-linux-8512546_latest.zip
         mkdir -p android-sdk/cmdline-tools
         mv cmdline-tools android-sdk/cmdline-tools/latest
         
@@ -38,18 +39,19 @@ jobs:
         echo "ANDROID_SDK_ROOT=$PWD/android-sdk" >> $GITHUB_ENV
         echo "$PWD/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
         echo "$PWD/android-sdk/platform-tools" >> $GITHUB_PATH
+        echo "$PWD/android-sdk/build-tools/34.0.0" >> $GITHUB_PATH
         
-    - name: Install Android packages
-      run: |
+        # Accept licenses and install packages
         yes | android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
-        android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-31" "build-tools;30.0.3"
+        android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
         
-    - name: Install Buildozer
+    - name: Install Buildozer and setup
       run: |
         pip install buildozer cython
         
     - name: Build APK with Buildozer
       run: |
+        # Let Buildozer handle Android SDK/NDK download
         buildozer -v android debug
       
     - name: Upload APK
