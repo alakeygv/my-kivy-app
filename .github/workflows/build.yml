@@ -22,10 +22,7 @@ jobs:
           libffi-dev \
           libssl-dev \
           libncurses5-dev
-          sudo apt install google-android-build-tools-installer
-          cd ~/.buildozer/android/platform/android-sdk-20
-          mkdir -p build-tools/0
-          ln -s /usr/bin/aidl ~/.buildozer/android/platform/android-sdk-20/build-tools/0/aidl
+          
           
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
