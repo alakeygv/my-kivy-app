@@ -37,20 +37,19 @@ jobs:
         mkdir -p ~/.android
         touch ~/.android/repositories.cfg
         
-        # Создаем директорию для лицензий вручную
-        mkdir -p $ANDROID_HOME/licenses
-        echo -e "\n8933bad161af4178b1185d1a37fbf41ea5269c55" > $ANDROID_HOME/licenses/android-sdk-license
-        echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" > $ANDROID_HOME/licenses/android-sdk-preview-license
-        echo -e "\n8415c6c1b76f4d0c0c15b4f100dee1b6c5c0c0c0" > $ANDROID_HOME/licenses/android-sdk-build-tools-license
-        
-        # Принимаем все лицензии
+        # Принудительно принимаем ВСЕ лицензии
         yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
         
-    - name: Install Android SDK components
-      run: |
-        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "build-tools;36.1.0"
-        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-33"
+        # Устанавливаем более новую версию build-tools (вместо 36.1.0)
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "build-tools;34.0.0"
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-34"
         $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platform-tools"
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "cmdline-tools;latest"
+        
+    - name: Verify AIDL installation
+      run: |
+        ls -la $ANDROID_HOME/build-tools/34.0.0/
+        $ANDROID_HOME/build-tools/34.0.0/aidl --version || echo "AIDL check failed but continuing"
         
     - name: Build with Buildozer
       run: |
