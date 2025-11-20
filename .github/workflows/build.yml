@@ -10,18 +10,19 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Install basic dependencies
+    - name: Install Cython and dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y python3-pip openjdk-17-jdk git
+        # Устанавливаем Cython ДО buildozer
+        pip install cython
         pip install buildozer
         
-    - name: Download python-for-android
+    - name: Verify Cython installation
       run: |
-        # Принудительно скачиваем python-for-android
-        buildozer android update
-        echo "=== Проверяем скачанные файлы ==="
-        find .buildozer -name "python-for-android" -type d 2>/dev/null || echo "python-for-android не найден"
+        echo "=== Проверяем Cython ==="
+        python3 -c "import cython; print('Cython импортируется успешно')"
+        which cython || echo "cython не в PATH"
         
     - name: Build APK
       run: |
