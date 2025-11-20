@@ -10,34 +10,21 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Install dependencies
+    - name: Full Buildozer setup
       run: |
         sudo apt-get update
-        sudo apt-get install -y \
-            python3-pip \
-            openjdk-17-jdk \
-            git \
-            curl \
-            unzip \
-            zip \
-            python3-venv
-        pip install buildozer cython
+        sudo apt-get install -y python3-pip openjdk-17-jdk git
+        pip install buildozer
         
-    - name: Setup Buildozer and download dependencies
-      run: |
-        # Создаем базовую конфигурацию если нет
-        if [ ! -f buildozer.spec ]; then
-          buildozer init
-        fi
-        
-        # Принудительно скачиваем python-for-android
+        # Полная переустановка Buildozer
+        rm -rf .buildozer
+        buildozer init -f
         buildozer android update
         buildozer android clean
         
-    - name: Build APK
+    - name: Build with timeout
       run: |
-        # Сборка с максимальной детализацией
-        yes | buildozer -v 2 android debug
+        timeout 1800 yes | buildozer -v 2 android debug
       
     - name: Upload APK
       uses: actions/upload-artifact@v4
@@ -45,4 +32,3 @@ jobs:
         name: app-apk
         path: bin/*.apk
         retention-days: 30
-        if-no-files-found: warn
