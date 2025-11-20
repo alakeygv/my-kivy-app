@@ -39,5 +39,5 @@ jobs:
         
     - name: Build with Buildozer
       run: |
-        buildozer init
+        
         buildozer -v android debug
