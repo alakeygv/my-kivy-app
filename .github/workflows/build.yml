@@ -1,6 +1,10 @@
 name: Build Kivy APK
 
-on: [push, workflow_dispatch]
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
@@ -10,38 +14,45 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
     - name: Install system dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y \
           python3-pip \
-          openjdk-17-jdk \
+          openjdk-11-jdk \
           git \
           unzip \
-          zip \
-          libffi-dev \
-          libssl-dev \
-          libncurses5-dev
-          
-          
-    - name: Setup Android SDK
-      uses: android-actions/setup-android@v3
-      
+          zip
         
-      
-    - name: Install Python dependencies
+    - name: Install Buildozer
       run: |
-        python3 -m pip install --upgrade pip setuptools wheel
-        pip install cython buildozer
+        pip install buildozer
+        pip install Cython==0.29.33
+        
+    - name: Accept Android SDK licenses
+      run: |
+        mkdir -p ~/.android
+        touch ~/.android/repositories.cfg
+        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+        
+    - name: Install required Android SDK components
+      run: |
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;36.1.0" "platforms;android-33"
         
     - name: Build with Buildozer
       run: |
         buildozer -v android debug
-        # Убери 'yes |' - это может ломать пайпы
-      
-    - name: Upload APK
+        # или для релизной сборки:
+        # buildozer -v android release
+        
+    - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
-        name: app-apk
+        name: kivy-app
         path: bin/*.apk
         retention-days: 30
