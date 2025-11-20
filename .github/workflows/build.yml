@@ -17,40 +17,27 @@ jobs:
       with:
         python-version: '3.9'
         
-    - name: Install system dependencies
+    - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y \
-          python3-pip \
-          openjdk-11-jdk \
-          git \
-          unzip \
-          zip
+        sudo apt-get install -y python3-pip openjdk-11-jdk git unzip zip
+        pip install buildozer Cython==0.29.33
         
-    - name: Install Buildozer
-      run: |
-        pip install buildozer
-        pip install Cython==0.29.33
-        
-    - name: Setup Android SDK and accept licenses
+    - name: Setup Android SDK with working build-tools
       run: |
         mkdir -p ~/.android
         touch ~/.android/repositories.cfg
         
-        # Принудительно принимаем ВСЕ лицензии
-        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-        
-        # Устанавливаем более новую версию build-tools (вместо 36.1.0)
-        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "build-tools;34.0.0"
-        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-34"
+        # Устанавливаем проверенную версию build-tools
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "build-tools;33.0.2"
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-33"
         $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platform-tools"
-        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "cmdline-tools;latest"
         
-    - name: Verify AIDL installation
-      run: |
-        ls -la $ANDROID_HOME/build-tools/34.0.0/
-        $ANDROID_HOME/build-tools/34.0.0/aidl --version || echo "AIDL check failed but continuing"
+        # Проверяем наличие AIDL
+        echo "AIDL path: $ANDROID_HOME/build-tools/33.0.2/aidl"
+        ls -la $ANDROID_HOME/build-tools/33.0.2/ | grep aidl
         
     - name: Build with Buildozer
       run: |
+        buildozer init
         buildozer -v android debug
