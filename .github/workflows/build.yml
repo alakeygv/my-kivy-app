@@ -10,23 +10,31 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Install Cython and dependencies
+    - name: Install system dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y python3-pip openjdk-17-jdk git
-        # Устанавливаем Cython ДО buildozer
-        pip install cython
-        pip install buildozer
-        
-    - name: Verify Cython installation
+        sudo apt-get install -y \
+          python3-pip \
+          openjdk-17-jdk \
+          git \
+          unzip \
+          zip \
+          libffi-dev \
+          libssl-dev \
+          libncurses5-dev
+          
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      
+    - name: Install Python dependencies
       run: |
-        echo "=== Проверяем Cython ==="
-        python3 -c "import cython; print('Cython импортируется успешно')"
-        which cython || echo "cython не в PATH"
+        python3 -m pip install --upgrade pip setuptools wheel
+        pip install cython buildozer
         
-    - name: Build APK
+    - name: Build with Buildozer
       run: |
-        yes | buildozer -v android debug
+        buildozer -v android debug
+        # Убери 'yes |' - это может ломать пайпы
       
     - name: Upload APK
       uses: actions/upload-artifact@v4
@@ -34,4 +42,3 @@ jobs:
         name: app-apk
         path: bin/*.apk
         retention-days: 30
-        if-no-files-found: warn
