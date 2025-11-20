@@ -18,7 +18,6 @@ jobs:
         
         # Полная переустановка Buildozer
         rm -rf .buildozer
-        buildozer init -f
         buildozer android update
         buildozer android clean
         
