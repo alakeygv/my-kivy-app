@@ -12,48 +12,28 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.9'
         
-    - name: Install system dependencies
+    - name: Install Buildozer and dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y \
-          python3-pip \
-          openjdk-11-jdk \
-          git \
-          unzip \
-          zip \
-          wget
+        sudo apt-get install -y git unzip zip
+        pip install buildozer Cython==0.29.33
         
-    - name: Install Buildozer
+    - name: Install specific build-tools version
       run: |
-        pip install buildozer
-        pip install Cython==0.29.33
+        yes | sdkmanager "build-tools;30.0.3" "platforms;android-30"
         
-    - name: Clean previous installations
+    - name: Verify AIDL exists
       run: |
-        rm -rf ~/.buildozer
-        
-    - name: Install Android SDK with platform-tools
-      run: |
-        mkdir -p ~/.android
-        touch ~/.android/repositories.cfg
-        
-        # Устанавливаем platform-tools который содержит AIDL
-        yes | sdkmanager "platform-tools"
-        yes | sdkmanager "build-tools;34.0.0"
-        yes | sdkmanager "platforms;android-34"
-        yes | sdkmanager "cmdline-tools;latest"
-        
-    - name: Check AIDL location
-      run: |
-        echo "Checking AIDL in platform-tools:"
-        ls -la $ANDROID_HOME/platform-tools/ | grep aidl || echo "AIDL not in platform-tools"
-        echo "Checking AIDL in build-tools:"
-        find $ANDROID_HOME/build-tools -name "aidl" -type f
+        find $ANDROID_HOME -name "aidl" -type f
+        $ANDROID_HOME/build-tools/30.0.3/aidl --version || echo "Trying different location"
         
     - name: Build with Buildozer
       run: |
