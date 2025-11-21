@@ -13,9 +13,9 @@ jobs:
       uses: actions/checkout@v4
       
     - name: Build Android APK with Buildozer
-      uses: ArtemSBulgakov/buildozer-action@v1
+      uses: ArtemSBulgakov/buildozer-action@v2  # Используем v2
       with:
-        buildozer-version: stable
+        buildozer-version: main  # Используем последнюю версию
         python-version: 3.9
         target: android debug
         
