@@ -12,11 +12,9 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Build Android APK with Buildozer
-      uses: ArtemSBulgakov/buildozer-action@v2  # Используем v2
+    - name: Build with Buildozer
+      uses: marketplace-actions/buildozer-action@v4
       with:
-        buildozer-version: main  # Используем последнюю версию
-        python-version: 3.9
         target: android debug
         
     - name: Upload APK
