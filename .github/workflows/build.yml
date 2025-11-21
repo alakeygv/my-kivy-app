@@ -12,58 +12,15 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Set up Python
-      uses: actions/setup-python@v4
+    - name: Build Android APK with Buildozer
+      uses: ArtemSBulgakov/buildozer-action@v1
       with:
-        python-version: '3.9'
+        buildozer-version: stable
+        python-version: 3.9
+        target: android debug
         
-    - name: Install system dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          python3-pip \
-          openjdk-11-jdk \
-          git \
-          unzip \
-          zip \
-          wget
-        
-    - name: Install Buildozer
-      run: |
-        pip install buildozer
-        pip install Cython==0.29.33
-        
-    - name: Pre-install Android SDK for Buildozer
-      run: |
-        # Создаем директорию куда Buildozer ставит SDK
-        mkdir -p ~/.buildozer/android/platform/android-sdk
-        
-        # Скачиваем командные инструменты в папку Buildozer
-        wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
-        unzip commandlinetools-linux-9477386_latest.zip -d ~/.buildozer/android/platform/android-sdk/
-        mv ~/.buildozer/android/platform/android-sdk/cmdline-tools ~/.buildozer/android/platform/android-sdk/cmdline-tools-tmp
-        mkdir -p ~/.buildozer/android/platform/android-sdk/cmdline-tools
-        mv ~/.buildozer/android/platform/android-sdk/cmdline-tools-tmp/* ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/
-        
-    - name: Accept licenses for Buildozer's SDK
-      run: |
-        export ANDROID_HOME=~/.buildozer/android/platform/android-sdk
-        export ANDROID_SDK_ROOT=$ANDROID_HOME
-        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-        
-    - name: Install components to Buildozer's SDK
-      run: |
-        export ANDROID_HOME=~/.buildozer/android/platform/android-sdk
-        export ANDROID_SDK_ROOT=$ANDROID_HOME
-        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;34.0.0" "platforms;android-34"
-        
-    - name: Verify AIDL in Buildozer's SDK
-      run: |
-        export ANDROID_HOME=~/.buildozer/android/platform/android-sdk
-        echo "AIDL location:"
-        find ~/.buildozer/android/platform/android-sdk -name "aidl" -type f
-        ~/.buildozer/android/platform/android-sdk/build-tools/34.0.0/aidl --version || echo "AIDL check failed"
-        
-    - name: Build with Buildozer
-      run: |
-        buildozer -v android debug
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-apk
+        path: bin/*.apk
