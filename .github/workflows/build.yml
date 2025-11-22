@@ -39,7 +39,21 @@ jobs:
     - name: Clean buildozer cache
       run: |
         rm -rf ~/.buildozer
+
+    - name: Pre-install Android SDK for Buildozer
+      run: |
+        mkdir -p ~/.buildozer/android/platform/android-sdk
+        wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
+        unzip commandlinetools-linux-9477386_latest.zip -d ~/.buildozer/android/platform/android-sdk/
+        mkdir -p ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest
+        mv ~/.buildozer/android/platform/android-sdk/cmdline-tools/* ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/
         
+        export ANDROID_HOME=~/.buildozer/android/platform/android-sdk
+        export ANDROID_SDK_ROOT=$ANDROID_HOME
+        
+        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;34.0.0" "platforms;android-34"
+    
     - name: Build APK
       run: |
         buildozer -v android debug
