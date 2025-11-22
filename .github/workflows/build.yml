@@ -22,61 +22,23 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y \
           python3-pip \
-          openjdk-8-jdk \
           openjdk-11-jdk \
           git \
           unzip \
-          zip \
-          wget \
-          libncurses6 \
-          zlib1g-dev
+          zip
           
-    - name: Install Buildozer and dependencies
+    - name: Install latest Buildozer from git
       run: |
-        pip install --upgrade pip
-        pip install buildozer
+        pip install git+https://github.com/kivy/buildozer.git
         pip install Cython==0.29.33
 
     - name: Clean buildozer cache
       run: |
         rm -rf ~/.buildozer
-
-    - name: Pre-install Android SDK for Buildozer
-      run: |
-        # Устанавливаем Java 8
-        sudo apt-get install -y openjdk-8-jdk
         
-        # Устанавливаем переменные для Java 8
-        export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-        export PATH=$JAVA_HOME/bin:$PATH
-        
-        mkdir -p ~/.buildozer/android/platform
-        wget https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip
-        unzip sdk-tools-linux-4333796.zip -d ~/.buildozer/android/platform/android-sdk/
-        
-        export ANDROID_HOME=~/.buildozer/android/platform/android-sdk
-        export ANDROID_SDK_ROOT=$ANDROID_HOME
-        
-        yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
-        $ANDROID_HOME/tools/bin/sdkmanager "platform-tools" "build-tools;34.0.0" "platforms;android-34"
-
-    - name: Fix SDK paths for Buildozer
-      run: |
-        sudo mkdir -p /usr/local/lib/android/sdk/tools
-        sudo ln -sf ../cmdline-tools/latest/bin /usr/local/lib/android/sdk/tools/bin
-
-    - name: Install Android components manually
-      run: |
-        # Устанавливаем platform-tools и build-tools напрямую
-        /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --install "platform-tools" "build-tools;34.0.0" "platforms;android-34"
-        
-        # Проверяем что установилось
-        ls -la /usr/local/lib/android/sdk/platform-tools/
-        ls -la /usr/local/lib/android/sdk/build-tools/34.0.0/
-  
     - name: Build APK
       run: |
-        buildozer -v android debug 
+        buildozer -v android debug
         
     - name: Upload APK
       uses: actions/upload-artifact@v4
