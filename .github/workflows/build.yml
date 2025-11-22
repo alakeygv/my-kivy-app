@@ -27,8 +27,8 @@ jobs:
           unzip \
           zip \
           wget \
-          libncurses5 \
-          libncurses5-dev
+          libncurses6 \
+          zlib1g-dev
           
     - name: Install Buildozer and dependencies
       run: |
@@ -36,17 +36,11 @@ jobs:
         pip install buildozer
         pip install Cython==0.29.33
         
-    - name: Create virtual display for Buildozer
-      run: |
-        sudo apt-get install -y xvfb
-        export DISPLAY=:99
-        Xvfb :99 -screen 0 1024x768x24 &
-        
     - name: Initialize Buildozer
       run: |
         buildozer init || true
         # Даем Buildozer самому разобраться с SDK
-        buildozer android clean || true
+        timeout 300 buildozer android clean || echo "Clean completed or timed out"
         
     - name: Build APK
       run: |
