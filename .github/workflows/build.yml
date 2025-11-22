@@ -35,12 +35,10 @@ jobs:
         pip install --upgrade pip
         pip install buildozer
         pip install Cython==0.29.33
-        
-    - name: Initialize Buildozer
+
+    - name: Clean buildozer cache
       run: |
-        buildozer init || true
-        # Даем Buildozer самому разобраться с SDK
-        timeout 300 buildozer android clean || echo "Clean completed or timed out"
+        rm -rf ~/.buildozer
         
     - name: Build APK
       run: |
