@@ -14,7 +14,7 @@ android.sdk = 34
 android.api = 31
 android.minapi = 21
 android.ndk = 25b
-android.sdk = 28
+
 
 [buildozer]
 log_level = 2
