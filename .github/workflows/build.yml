@@ -22,6 +22,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y \
           python3-pip \
+          openjdk-8-jdk \
           openjdk-11-jdk \
           git \
           unzip \
@@ -42,8 +43,14 @@ jobs:
 
     - name: Pre-install Android SDK for Buildozer
       run: |
+        # Устанавливаем Java 8
+        sudo apt-get install -y openjdk-8-jdk
+        
+        # Устанавливаем переменные для Java 8
+        export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+        export PATH=$JAVA_HOME/bin:$PATH
+        
         mkdir -p ~/.buildozer/android/platform
-        # Скачиваем старый SDK с правильной структурой
         wget https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip
         unzip sdk-tools-linux-4333796.zip -d ~/.buildozer/android/platform/android-sdk/
         
