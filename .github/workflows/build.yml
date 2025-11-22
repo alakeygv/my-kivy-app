@@ -64,10 +64,10 @@ jobs:
       run: |
         sudo mkdir -p /usr/local/lib/android/sdk/tools
         sudo ln -sf ../cmdline-tools/latest/bin /usr/local/lib/android/sdk/tools/bin
-    
+        
     - name: Build APK
       run: |
-        buildozer -v android debug
+        buildozer -v android debug --skip-sdk
         
     - name: Upload APK
       uses: actions/upload-artifact@v4
