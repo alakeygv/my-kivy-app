@@ -12,10 +12,9 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Build Android APK
-      uses: jangl/buildozer-action@v1.0.0
+    - name: Build with Buildozer
+      uses: mindee/buildozer-action@v1
       with:
-        buildozer_version: main
         target: android debug
         
     - name: Upload APK
