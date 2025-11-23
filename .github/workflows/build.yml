@@ -12,37 +12,14 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Set up Python
-      uses: actions/setup-python@v4
+    - name: Build Android APK
+      uses: jangl/buildozer-action@v1.0.0
       with:
-        python-version: '3.9'
-        
-    - name: Install system dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          python3-pip \
-          openjdk-11-jdk \
-          git \
-          unzip \
-          zip
-          
-    - name: Install latest Buildozer from git
-      run: |
-        pip install git+https://github.com/kivy/buildozer.git
-        pip install Cython==0.29.33
-
-    - name: Clean buildozer cache
-      run: |
-        rm -rf ~/.buildozer
-        
-    - name: Build APK
-      run: |
-        buildozer -v android debug
+        buildozer_version: main
+        target: android debug
         
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: app-apk
         path: bin/*.apk
-        retention-days: 30
